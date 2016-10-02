@@ -26,12 +26,12 @@
  */
 
 var OneSignal = function() {
-    var _appID = "";
-    var _googleProjectNumber = "";
-    var _iOSSettings = {};
-    var _displayOption = 1;
-    var _notificationReceivedDelegate = function() {};
-    var _notificationOpenedDelegate = function() {};
+    OneSignal._appID = "";
+    OneSignal._googleProjectNumber = "";
+    OneSignal._iOSSettings = {};
+    OneSignal._displayOption = 1;
+    OneSignal._notificationReceivedDelegate = function() {};
+    OneSignal._notificationOpenedDelegate = function() {};
 };
 
 OneSignal.prototype.OSInFocusDisplayOption = {
