@@ -111,8 +111,34 @@ OneSignal.prototype.deleteTags = function(keys) {
 
 // Only applies to iOS(does nothing on Android as it always silently registers)
 // Call only if you passed false to autoRegister
-OneSignal.prototype.registerForPushNotifications = function() {
-    cordova.exec(function(){}, function(){}, "OneSignalPush", "registerForPushNotifications", []);
+OneSignal.prototype.registerForPushNotifications = function(onSuccess, onFailure) {
+    if (onSuccess == null)
+        onSuccess = function() {};
+
+    if (onFailure == null)
+        onFailure = function() {};
+
+    cordova.exec(function() {}, function() {}, "OneSignalPush", "registerForPushNotifications", []);
+
+    // Wait for the user to make a decision
+    var checkCount = 0;
+    var checkSettings = function() {
+        OneSignal.prototype.getCurrentUserNotificationSettings(function (response) {
+            if(response.types <= 0) {
+                if(checkCount++ < 10) {
+                    checkAgain();
+                } else {
+                    onFailure("Tried checking 10 times. Either the user denied access, or they still haven't responded.");
+                }
+            } else {
+                onSuccess(response.types);
+            }
+        })
+    };
+    var checkAgain = function() {
+        setTimeout(checkSettings, 1000);
+    };
+    checkSettings();
 };
 
 // Only applies to Android, vibrate is on by default but can be disabled by passing in false.
@@ -129,8 +155,14 @@ OneSignal.prototype.enableNotificationsWhenActive = function(enable) {
     cordova.exec(function(){}, function(){}, "OneSignalPush", "enableNotificationsWhenActive", [enable]);
 };
 
-OneSignal.prototype.setSubscription = function(enable) {
-    cordova.exec(function(){}, function(){}, "OneSignalPush", "setSubscription", [enable]);
+OneSignal.prototype.setSubscription = function(enable, onSuccess, onFailure) {
+    if (onSuccess == null)
+        onSuccess = function() {};
+
+    if (onFailure == null)
+        onFailure = function() {};
+
+    cordova.exec(onSuccess, onFailure, "OneSignalPush", "setSubscription", [enable]);
 };
 
 OneSignal.prototype.postNotification = function(jsonData, onSuccess, onFailure) {
@@ -145,6 +177,10 @@ OneSignal.prototype.postNotification = function(jsonData, onSuccess, onFailure) 
 
 OneSignal.prototype.promptLocation = function() {
   cordova.exec(function(){}, function(){}, "OneSignalPush", "promptLocation", []);
+};
+
+OneSignal.prototype.getCurrentUserNotificationSettings = function(onSuccess) {
+    cordova.exec(onSuccess, function(){}, "OneSignalPush", "getCurrentUserNotificationSettings", []);
 };
 
 OneSignal.prototype.syncHashedEmail = function(email) {

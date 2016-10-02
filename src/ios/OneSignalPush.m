@@ -198,10 +198,12 @@ static Class delegateClass = nil;
 
 - (void)registerForPushNotifications:(CDVInvokedUrlCommand*)command {
     [OneSignal registerForPushNotifications];
+    successCallback(command.callbackId, nil);
 }
 
 - (void)setSubscription:(CDVInvokedUrlCommand*)command {
     [OneSignal setSubscription:[command.arguments[0] boolValue]];
+    successCallback(command.callbackId, nil);
 }
 
 - (void)postNotification:(CDVInvokedUrlCommand*)command {
@@ -225,6 +227,10 @@ static Class delegateClass = nil;
    [OneSignal promptLocation];
 }
 
+- (void)getCurrentUserNotificationSettings:(CDVInvokedUrlCommand*)command {
+    int notificationTypes = [OneSignal getNotificationTypes];
+    successCallback(command.callbackId, @{@"types": [NSNumber numberWithInt:notificationTypes]});
+}
 - (void)syncHashedEmail:(CDVInvokedUrlCommand*)command {
    [OneSignal syncHashedEmail:command.arguments[0]];
 }
